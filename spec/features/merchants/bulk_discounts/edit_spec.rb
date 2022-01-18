@@ -41,4 +41,27 @@ RSpec.describe 'edit page for bulk discount' do
       expect(page).to have_content('Percentage must be less than 100')
     end
   end
+  it 'wont update when invoice pending' do
+    merchant = Merchant.create!(name: 'I am the merchant')
+    discount_1 = merchant.bulk_discounts.create!(title: 'A', qty_threshold: 10, percentage: 90)
+
+    item = merchant.items.create!(name: 'cool item', unit_price: 1208, description: 'cool item descrip')
+    customer = Customer.create!(first_name: 'ted', last_name: 'bill')
+    invoice = customer.invoices.create!(status: 0)
+    invoice_item = invoice.invoice_items.create!(quantity: 10, unit_price: 1208, item_id: item.id)
+
+    visit edit_merchant_bulk_discount_path(merchant, discount_1)
+
+    within '.edit-form' do
+      fill_in 'bulk_discount_title', with: 'best discount'
+      fill_in 'bulk_discount_qty_threshold', with: 12
+      fill_in 'bulk_discount_qty_threshold', with: 90
+      click_on 'Update Bulk discount'
+
+      expect(current_path).to eq(merchant_bulk_discount_path(merchant, discount_1))
+    end
+    within '.flash' do
+      expect(page).to have_content('CANT UPDATE WITH PENDING INVOICES')
+    end
+  end
 end
