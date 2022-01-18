@@ -12,7 +12,9 @@
     <p><%= in_item.status %></p>
   <% end %>
 </div>
-<%= render partial: 'form', locals: { model: [:admin, @invoice] }%>
+<div class="status">
+  <%= render partial: 'form', locals: { model: [:admin, @invoice] }%>
+</div>
 <div class="total_revenue">
   <p>Total Revenue: <%= number_to_currency(@invoice.total_revenue / 100) %></p>
 </div>
