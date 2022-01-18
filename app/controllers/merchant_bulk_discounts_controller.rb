@@ -37,7 +37,10 @@ class MerchantBulkDiscountsController < ApplicationController
 
   def update
     @bulk_discount = BulkDiscount.find(params[:id])
-    if @bulk_discount.update(bulk_discount_params)
+    if @bulk_discount.invoice_items.pending.present?
+      flash.now[:pending_errors] = 'CANT UPDATE WITH PENDING INVOICES'
+      render 'edit'
+    elsif @bulk_discount.update(bulk_discount_params)
       redirect_to merchant_bulk_discount_path(@bulk_discount.merchant, @bulk_discount)
     else
       render 'edit'
