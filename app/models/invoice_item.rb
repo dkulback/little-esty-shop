@@ -1,6 +1,7 @@
 class InvoiceItem < ApplicationRecord
   belongs_to :invoice
   belongs_to :item
+  belongs_to :bulk_discounts, optional: true
   has_many :merchants, through: :item
   has_many :bulk_discounts, through: :merchants
   scope :applied, -> { joins(:bulk_discounts).where('quantity >= bulk_discounts.qty_threshold', true) }

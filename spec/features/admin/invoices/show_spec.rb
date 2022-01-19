@@ -21,6 +21,8 @@ RSpec.describe 'Admin Invoice Show Page' do
                                           quantity: 1, unit_price: 700)
     @invoice_item_3 = InvoiceItem.create!(invoice_id: @invoice_3.id.to_s, item_id: @item_2.id.to_s, status: 2,
                                           quantity: 1, unit_price: 700)
+    @invoice_item_4 = InvoiceItem.create!(invoice_id: @invoice_3.id.to_s, item_id: @item_2.id.to_s, status: 2,
+                                          quantity: 2, unit_price: 700)
   end
 
   it 'shows customer and status information for the invoice' do
@@ -62,6 +64,16 @@ RSpec.describe 'Admin Invoice Show Page' do
     click_button 'Update Status'
     expect(current_path).to eq(admin_invoices_path(:id))
     expect(@invoice_1.status).to eq('completed')
+  end
+  it 'updates invoice_items if invoice had bulk_discounts attached to them' do
+    visit admin_invoice_path(@invoice_1)
+    within '.status' do
+      select 'completed', from: 'Status'
+      click_button 'Update Status'
+    end
+    @invoice_item_1.reload
+
+    expect(@invoice_item_1.bulk_discount_id).to eq(@discount.id)
   end
   it 'shows the total discounted revenue' do
     visit admin_invoice_path(@invoice_1)
